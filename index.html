@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemLab X Pro</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
+
+body{background:#0b0f1a;color:#fff;}
+
+header{
+  display:flex;justify-content:space-between;
+  padding:15px 25px;background:#111827;
+  border-bottom:1px solid #00eaff33;
+}
+.logo{color:#00eaff;font-weight:bold;font-size:18px;}
+
+footer{
+  text-align:center;padding:10px;background:#111827;
+  border-top:1px solid #00eaff33;
+  position:fixed;bottom:0;width:100%;
+}
+
+.container{
+  display:grid;
+  grid-template-columns:260px 1fr 320px;
+  gap:15px;padding:15px;
+  height:calc(100vh - 100px);
+}
+
+.card{
+  background:#111827;border-radius:10px;
+  padding:12px;border:1px solid #00eaff22;
+  overflow:auto;
+}
+
+.item{
+  padding:8px;margin:6px 0;
+  background:#0b0f1a;border:1px solid #00eaff55;
+  border-radius:6px;cursor:grab;
+}
+
+.workspace{
+  border:2px dashed #00eaff44;
+  border-radius:10px;height:200px;
+  position:relative;text-align:center;
+  padding-top:10px;
+}
+
+.liquid{
+  position:absolute;bottom:0;width:100%;
+  height:0%;background:cyan;
+  transition:.5s;
+}
+
+.flame{
+  display:none;text-align:center;
+  font-size:20px;
+  animation:flicker .3s infinite alternate;
+}
+@keyframes flicker{from{opacity:.5;}to{opacity:1;}}
+
+input[type=range]{width:100%;}
+
+.history{
+  font-size:13px;max-height:150px;
+  overflow:auto;border-top:1px solid #00eaff33;
+  margin-top:8px;padding-top:5px;
+}
+
+button{
+  margin-top:6px;padding:6px;
+  border:none;background:#00eaff;
+  color:#000;cursor:pointer;border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">⚗️ ChemLab X Pro</div>
+</header>
+
+<div class="container">
+
+<!-- CHEMICALS -->
+<div class="card">
+<h3>🧴 Chemicals</h3>
+
+<div class="item" draggable="true" data-type="beaker">Beaker</div>
+<div class="item" draggable="true" data-type="testtube">Test Tube</div>
+
+<h4>Acids</h4>
+<div class="item" draggable="true" data-type="HCl">HCl</div>
+<div class="item" draggable="true" data-type="H2SO4">H₂SO₄</div>
+
+<h4>Bases</h4>
+<div class="item" draggable="true" data-type="NaOH">NaOH</div>
+<div class="item" draggable="true" data-type="KOH">KOH</div>
+
+<h4>Others</h4>
+<div class="item" draggable="true" data-type="NaCl">NaCl</div>
+<div class="item" draggable="true" data-type="H2O">H₂O</div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="card">
+<h3>🧪 Workspace</h3>
+
+<div class="workspace" id="workspace">
+Drop container & chemicals here
+<div class="liquid" id="liquid"></div>
+</div>
+
+<div class="flame" id="flame">🔥 Heating...</div>
+
+<label>Temperature</label>
+<input type="range" min="0" max="100" id="temp">
+
+<button onclick="heat()">🔥 Apply Heat</button>
+<button onclick="react()">⚗️ Run Reaction</button>
+
+</div>
+
+<!-- OUTPUT -->
+<div class="card">
+<h3>📊 Result</h3>
+<div id="output">Start experiment</div>
+
+<h4>📜 History</h4>
+<div class="history" id="history"></div>
+
+<button onclick="reset()">Reset</button>
+
+<h4>📋 Lab Instructions</h4>
+<ul>
+<li>Take a clean beaker or test tube</li>
+<li>Add chemicals by dragging them</li>
+<li>Observe color changes instantly</li>
+<li>Apply heat if required</li>
+<li>Run reaction to see final result</li>
+<li>Note reaction type and observation</li>
+<li>Repeat experiment safely</li>
+</ul>
+
+</div>
+
+</div>
+
+<footer>© 2026 ChemLab X</footer>
+
+<script>
+
+let state={
+container:null,
+chemicals:[],
+temp:0
+};
+
+document.querySelectorAll('.item').forEach(el=>{
+  el.addEventListener('dragstart',e=>{
+    e.dataTransfer.setData('type',el.dataset.type);
+  });
+});
+
+let workspace=document.getElementById('workspace');
+
+workspace.addEventListener('dragover',e=>e.preventDefault());
+
+workspace.addEventListener('drop',e=>{
+  e.preventDefault();
+  let type=e.dataTransfer.getData('type');
+
+  if(type==="beaker"||type==="testtube"){
+    state.container=type;
+    log("Container ready");
+    return;
+  }
+
+  if(!state.container){
+    log("❌ Add container first");
+    return;
+  }
+
+  state.chemicals.push(type);
+  updateLiquid();
+});
+
+/* COLOR + LEVEL */
+function updateLiquid(){
+  let color="cyan";
+
+  if(state.chemicals.includes("HCl")||state.chemicals.includes("H2SO4"))
+    color="red";
+  if(state.chemicals.includes("NaOH")||state.chemicals.includes("KOH"))
+    color="blue";
+  if(state.chemicals.includes("NaCl")&&state.chemicals.includes("H2O"))
+    color="green";
+
+  let liquid=document.getElementById('liquid');
+  liquid.style.background=color;
+  liquid.style.height=Math.min(state.chemicals.length*20,100)+"%";
+}
+
+/* HEAT */
+function heat(){
+  state.temp=document.getElementById('temp').value;
+  document.getElementById('flame').style.display="block";
+  log("🔥 Heated at "+state.temp+"°C");
+}
+
+/* REACTION */
+function react(){
+
+  let c=state.chemicals;
+
+  let type="No Reaction";
+  let eq="-";
+  let explain="-";
+  let obs="-";
+
+  if(c.includes("HCl") && c.includes("NaOH")){
+    type="Neutralization";
+    eq="HCl + NaOH → NaCl + H₂O";
+    explain="Acid reacts with base forming salt and water.";
+    obs="Temperature rises, neutral solution formed.";
+  }
+  else if(c.includes("H2SO4") && c.includes("NaOH")){
+    type="Strong Acid-Base";
+    eq="H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O";
+    explain="Strong acid reacts vigorously.";
+    obs="Highly exothermic reaction.";
+  }
+  else if(c.includes("NaCl") && c.includes("H2O")){
+    type="Dissolution";
+    eq="NaCl → Na⁺ + Cl⁻";
+    explain="Salt dissociates into ions.";
+    obs="Solid disappears completely.";
+  }
+  else if(c.includes("HCl") && c.includes("KOH")){
+    type="Neutralization";
+    eq="HCl + KOH → KCl + H₂O";
+    explain="Acid-base neutralization.";
+    obs="Heat released.";
+  }
+
+  if(state.temp>50) obs+=" Reaction faster due to heating.";
+
+  let output=`
+  <b>Type:</b> ${type}<br>
+  <b>Equation:</b> ${eq}<br>
+  <b>Explanation:</b> ${explain}<br>
+  <b>Observation:</b> ${obs}
+  `;
+
+  document.getElementById('output').innerHTML=output;
+  addHistory(output);
+
+  resetMix();
+}
+
+/* HISTORY */
+function addHistory(text){
+  document.getElementById('history').innerHTML+=text+"<hr>";
+}
+
+/* LOG */
+function log(msg){
+  document.getElementById('output').innerText=msg;
+}
+
+/* RESET */
+function resetMix(){
+  state.chemicals=[];
+  document.getElementById('liquid').style.height="0%";
+}
+
+function reset(){
+  state={container:null,chemicals:[],temp:0};
+  document.getElementById('output').innerText="Reset done";
+  document.getElementById('liquid').style.height="0%";
+}
+
+</script>
+
+</body>
+</html>
