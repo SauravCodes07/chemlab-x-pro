@@ -75,6 +75,16 @@ button{
   border:none;background:#00eaff;
   color:#000;cursor:pointer;border-radius:5px;
 }
+
+/* NEW RESULT BOX */
+.resultBox{
+  margin-top:10px;
+  padding:10px;
+  border-left:4px solid #7c3aed;
+  background:#1f2937;
+  border-radius:6px;
+  font-size:14px;
+}
 </style>
 </head>
 
@@ -128,7 +138,9 @@ Drop container & chemicals here
 <!-- OUTPUT -->
 <div class="card">
 <h3>📊 Result</h3>
+
 <div id="output">Start experiment</div>
+<div id="extraResults"></div>
 
 <h4>📜 History</h4>
 <div class="history" id="history"></div>
@@ -256,9 +268,42 @@ function react(){
   <b>Observation:</b> ${obs}
   `;
 
-  document.getElementById('output').innerHTML=output;
-  addHistory(output);
+  /* NEW FEATURES */
+  let extra = "";
 
+  if(type.includes("Neutralization") || type.includes("Strong")){
+    extra += `
+    <div class="resultBox">
+    🔥 <b>Heat Released</b><br>
+    Exothermic — temperature rises visually in the simulation.
+    </div>`;
+  }
+
+  let phText = "Neutral solution";
+  let phColor = "green";
+
+  if(c.includes("HCl") || c.includes("H2SO4")){
+    phText = "Acidic solution (pH < 7)";
+    phColor = "red";
+  }
+  else if(c.includes("NaOH") || c.includes("KOH")){
+    phText = "Basic solution (pH > 7)";
+    phColor = "blue";
+  }
+
+  extra += `
+  <div class="resultBox">
+  🧪 <b>pH Result</b><br>
+  <span style="color:${phColor}">
+  ${phText}
+  </span>
+  </div>
+  `;
+
+  document.getElementById('output').innerHTML=output;
+  document.getElementById('extraResults').innerHTML = extra;
+
+  addHistory(output);
   resetMix();
 }
 
@@ -282,6 +327,7 @@ function reset(){
   state={container:null,chemicals:[],temp:0};
   document.getElementById('output').innerText="Reset done";
   document.getElementById('liquid').style.height="0%";
+  document.getElementById('extraResults').innerHTML="";
 }
 
 </script>
