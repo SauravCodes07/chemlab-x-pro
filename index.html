@@ -12,7 +12,8 @@ body{background:#0b0f1a;color:#fff;}
 header{display:flex;justify-content:space-between;padding:15px 25px;background:#111827;border-bottom:1px solid #00eaff33;}
 .logo{color:#00eaff;font-weight:bold;}
 
-.container{display:grid;grid-template-columns:260px 1fr 320px;gap:15px;padding:15px;height:calc(100vh - 80px);}
+/* UPDATED HEIGHT (for footer space) */
+.container{display:grid;grid-template-columns:260px 1fr 320px;gap:15px;padding:15px;height:calc(100vh - 140px);}
 
 .card{background:#111827;border-radius:10px;padding:12px;border:1px solid #00eaff22;overflow:auto;}
 
@@ -69,6 +70,26 @@ button{margin-top:6px;padding:6px;border:none;background:#00eaff;color:#000;curs
 
 .resultBox{margin-top:10px;padding:10px;border-left:4px solid #7c3aed;background:#1f2937;border-radius:6px;}
 .history{font-size:13px;max-height:150px;overflow:auto;margin-top:8px;}
+
+/* ===== NEW FOOTER ===== */
+footer{
+background:#111827;
+border-top:1px solid #00eaff33;
+padding:15px;
+text-align:center;
+font-size:14px;
+color:#aaa;
+}
+
+footer a{
+color:#00eaff;
+text-decoration:none;
+margin:0 10px;
+}
+
+footer a:hover{
+text-decoration:underline;
+}
 </style>
 </head>
 
@@ -130,7 +151,19 @@ button{margin-top:6px;padding:6px;border:none;background:#00eaff;color:#000;curs
 
 </div>
 
+<!-- ===== NEW FOOTER HTML ===== -->
+<footer>
+<p>© 2026 ChemLab X Pro. All Rights Reserved.</p>
+<p>
+<a href="#">Contact Us</a> |
+<a href="#">Support</a> |
+<a href="#">Email: support@chemlabx.com</a>
+</p>
+</footer>
+
 <script>
+
+/* YOUR ORIGINAL JS (UNCHANGED) */
 
 let state={container:null,chemicals:[],temp:0,level:0};
 
@@ -173,11 +206,10 @@ workspace.appendChild(pour);
 setTimeout(()=>pour.remove(),500);
 
 state.chemicals.push(type);
-state.level+=8; // slow fill
+state.level+=8;
 updateLiquid();
 };
 
-/* COLOR */
 function updateLiquid(){
 let liquid=document.getElementById("liquid");
 if(!liquid) return;
@@ -193,7 +225,6 @@ liquid.style.background=color;
 liquid.style.height=Math.min(state.level,100)+"%";
 }
 
-/* HEAT */
 function heat(){
 state.temp=document.getElementById("temp").value;
 document.getElementById("flame").style.display="block";
@@ -207,7 +238,6 @@ setTimeout(()=>b.remove(),2000);
 }
 }
 
-/* REACTION */
 function react(){
 
 let c=state.chemicals;
@@ -253,7 +283,6 @@ state.chemicals=[];
 state.level=0;
 }
 
-/* RESET */
 function reset(){
 state={container:null,chemicals:[],temp:0,level:0};
 workspace.innerHTML="Drop items here";
