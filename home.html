@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemLab X Pro</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
+body{background:#0b0f1a;color:#fff;}
+
+header{display:flex;justify-content:space-between;padding:15px 25px;background:#111827;border-bottom:1px solid #00eaff33;}
+.logo{color:#00eaff;font-weight:bold;}
+
+/* UPDATED HEIGHT (for footer space) */
+.container{display:grid;grid-template-columns:260px 1fr 320px;gap:15px;padding:15px;height:calc(100vh - 140px);}
+
+.card{background:#111827;border-radius:10px;padding:12px;border:1px solid #00eaff22;overflow:auto;}
+
+.item{padding:8px;margin:6px 0;background:#0b0f1a;border:1px solid #00eaff55;border-radius:6px;cursor:grab;}
+
+.workspace{border:2px dashed #00eaff44;border-radius:10px;height:260px;position:relative;text-align:center;}
+
+/* APPARATUS SHAPES */
+.container-visual{
+position:absolute;bottom:0;left:50%;
+transform:translateX(-50%);
+border:2px solid #00eaff;
+background:rgba(255,255,255,0.05);
+overflow:hidden;
+}
+
+/* Beaker */
+.beaker{width:100px;height:120px;border-radius:8px 8px 20px 20px;}
+
+/* Test Tube */
+.testtube{width:60px;height:150px;border-radius:30px;}
+
+/* Flask */
+.flask{width:110px;height:130px;border-radius:50% 50% 20% 20%;}
+
+/* GLASS REFLECTION */
+.container-visual::before{
+content:"";position:absolute;top:0;left:10%;width:20%;height:100%;
+background:linear-gradient(to right,rgba(255,255,255,0.4),transparent);
+}
+
+/* LIQUID */
+.liquid{position:absolute;bottom:0;width:100%;height:0%;transition:.6s;}
+
+/* POUR */
+.pour{position:absolute;top:0;left:50%;width:6px;height:40px;background:cyan;animation:pour .5s;}
+@keyframes pour{from{height:0}to{height:40px}}
+
+/* BUBBLE */
+.bubble{position:absolute;bottom:0;width:6px;height:6px;background:white;border-radius:50%;animation:bubble 2s infinite;}
+@keyframes bubble{from{transform:translateY(0)}to{transform:translateY(-100px);opacity:0}}
+
+/* HEATING TEXT */
+.flame{
+display:none;
+text-align:center;
+font-size:18px;
+margin-top:5px;
+animation:flicker .3s infinite alternate;
+}
+@keyframes flicker{from{opacity:.5;}to{opacity:1;}}
+
+button{margin-top:6px;padding:6px;border:none;background:#00eaff;color:#000;cursor:pointer;border-radius:5px;}
+
+.resultBox{margin-top:10px;padding:10px;border-left:4px solid #7c3aed;background:#1f2937;border-radius:6px;}
+.history{font-size:13px;max-height:150px;overflow:auto;margin-top:8px;}
+
+/* ===== NEW FOOTER ===== */
+footer{
+background:#111827;
+border-top:1px solid #00eaff33;
+padding:15px;
+text-align:center;
+font-size:14px;
+color:#aaa;
+}
+
+footer a{
+color:#00eaff;
+text-decoration:none;
+margin:0 10px;
+}
+
+footer a:hover{
+text-decoration:underline;
+}
+</style>
+</head>
+
+<body>
+
+<header style="display:flex;justify-content:space-between;align-items:center;"><div class="logo">⚗️ ChemLab X Pro</div><a href="lab.html" style="color:#00eaff;text-decoration:none;font-size:14px;font-weight:600;">← Home</a></header>
+
+<div class="container">
+
+<!-- LEFT PANEL -->
+<div class="card">
+
+<h4>⚗️ Apparatus</h4>
+<div class="item" draggable="true" data-type="beaker">Beaker</div>
+<div class="item" draggable="true" data-type="testtube">Test Tube</div>
+<div class="item" draggable="true" data-type="flask">Conical Flask</div>
+
+<h4>Acids</h4>
+<div class="item" draggable="true" data-type="HCl">HCl</div>
+<div class="item" draggable="true" data-type="H2SO4">H₂SO₄</div>
+
+<h4>Bases</h4>
+<div class="item" draggable="true" data-type="NaOH">NaOH</div>
+<div class="item" draggable="true" data-type="KOH">KOH</div>
+
+<h4>Others</h4>
+<div class="item" draggable="true" data-type="NaCl">NaCl</div>
+<div class="item" draggable="true" data-type="H2O">H₂O</div>
+
+</div>
+
+<!-- WORKSPACE -->
+<div class="card">
+<h3>🧪 Workspace</h3>
+
+<div id="workspace" class="workspace">Drop items here</div>
+
+<div class="flame" id="flame">🔥 Heating...</div>
+
+<input type="range" min="0" max="100" id="temp">
+<p id="tempValue">Temperature: 0°C</p>
+
+<button onclick="heat()">🔥 Heat</button>
+<button onclick="react()">⚗️ React</button>
+</div>
+
+<!-- RESULT -->
+<div class="card">
+<h3>📊 Result</h3>
+
+<div id="output">Start experiment</div>
+<div id="extraResults"></div>
+
+<h4>📜 History</h4>
+<div class="history" id="history"></div>
+
+<button onclick="reset()">Reset</button>
+</div>
+
+</div>
+
+<!-- ===== NEW FOOTER HTML ===== -->
+<footer>
+<p>© 2026 ChemLab X Pro. All Rights Reserved.</p>
+<p>
+<a href="#">Contact Us</a> |
+<a href="#">Support</a> |
+<a href="#">Email: support@chemlabx.com</a>
+</p>
+</footer>
+
+<script>
+
+/* YOUR ORIGINAL JS (UNCHANGED) */
+
+let state={container:null,chemicals:[],temp:0,level:0};
+
+document.getElementById('temp').oninput=function(){
+document.getElementById('tempValue').innerText="Temperature: "+this.value+"°C";
+};
+
+document.querySelectorAll('.item').forEach(el=>{
+el.ondragstart=e=>e.dataTransfer.setData("type",el.dataset.type);
+});
+
+let workspace=document.getElementById("workspace");
+
+workspace.ondragover=e=>e.preventDefault();
+
+workspace.ondrop=e=>{
+e.preventDefault();
+let type=e.dataTransfer.getData("type");
+
+/* CONTAINER */
+if(type==="beaker"||type==="testtube"||type==="flask"){
+state.container=type;
+workspace.innerHTML="";
+let box=document.createElement("div");
+box.className="container-visual "+type;
+box.innerHTML=`<div id="liquid" class="liquid"></div>`;
+workspace.appendChild(box);
+return;
+}
+
+if(!state.container){
+alert("Add container first");
+return;
+}
+
+/* POUR */
+let pour=document.createElement("div");
+pour.className="pour";
+workspace.appendChild(pour);
+setTimeout(()=>pour.remove(),500);
+
+state.chemicals.push(type);
+state.level+=8;
+updateLiquid();
+};
+
+function updateLiquid(){
+let liquid=document.getElementById("liquid");
+if(!liquid) return;
+
+let c=state.chemicals;
+let color="cyan";
+
+if(c.includes("HCl")||c.includes("H2SO4")) color="#ff4d4d";
+if(c.includes("NaOH")||c.includes("KOH")) color="#4d79ff";
+if(c.includes("HCl")&&c.includes("NaOH")) color="purple";
+
+liquid.style.background=color;
+liquid.style.height=Math.min(state.level,100)+"%";
+}
+
+function heat(){
+state.temp=document.getElementById("temp").value;
+document.getElementById("flame").style.display="block";
+
+for(let i=0;i<6;i++){
+let b=document.createElement("div");
+b.className="bubble";
+b.style.left=Math.random()*80+"px";
+workspace.appendChild(b);
+setTimeout(()=>b.remove(),2000);
+}
+}
+
+function react(){
+
+let c=state.chemicals;
+
+let type="No Reaction";
+let eq="-";
+let explain="-";
+let obs="-";
+
+if(c.includes("HCl") && c.includes("NaOH")){
+type="Neutralization";
+eq="HCl + NaOH → NaCl + H₂O";
+explain="Acid reacts with base forming salt and water.";
+obs="Temperature rises, neutral solution formed.";
+}
+
+if(state.temp>0){
+obs += " | Heated at " + state.temp + "°C";
+}
+
+if(state.temp>50){
+obs += " (Reaction faster due to heating)";
+}
+
+let output=`
+<b>Type:</b> ${type}<br>
+<b>Equation:</b> ${eq}<br>
+<b>Explanation:</b> ${explain}<br>
+<b>Observation:</b> ${obs}
+`;
+
+let extra=`<div class="resultBox">🧪 pH Result: ${
+c.includes("HCl")?"Acidic":
+c.includes("NaOH")?"Basic":"Neutral"
+}</div>`;
+
+document.getElementById("output").innerHTML=output;
+document.getElementById("extraResults").innerHTML=extra;
+
+document.getElementById("history").innerHTML+=output+"<hr>";
+
+state.chemicals=[];
+state.level=0;
+}
+
+function reset(){
+state={container:null,chemicals:[],temp:0,level:0};
+workspace.innerHTML="Drop items here";
+document.getElementById("output").innerText="Reset done";
+document.getElementById("extraResults").innerHTML="";
+document.getElementById("flame").style.display="none";
+}
+
+</script>
+
+</body>
+</html>
