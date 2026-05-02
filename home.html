@@ -12,7 +12,6 @@ body{background:#0b0f1a;color:#fff;}
 header{display:flex;justify-content:space-between;padding:15px 25px;background:#111827;border-bottom:1px solid #00eaff33;}
 .logo{color:#00eaff;font-weight:bold;}
 
-/* UPDATED HEIGHT (for footer space) */
 .container{display:grid;grid-template-columns:260px 1fr 320px;gap:15px;padding:15px;height:calc(100vh - 140px);}
 
 .card{background:#111827;border-radius:10px;padding:12px;border:1px solid #00eaff22;overflow:auto;}
@@ -21,7 +20,6 @@ header{display:flex;justify-content:space-between;padding:15px 25px;background:#
 
 .workspace{border:2px dashed #00eaff44;border-radius:10px;height:260px;position:relative;text-align:center;}
 
-/* APPARATUS SHAPES */
 .container-visual{
 position:absolute;bottom:0;left:50%;
 transform:translateX(-50%);
@@ -30,33 +28,23 @@ background:rgba(255,255,255,0.05);
 overflow:hidden;
 }
 
-/* Beaker */
 .beaker{width:100px;height:120px;border-radius:8px 8px 20px 20px;}
-
-/* Test Tube */
 .testtube{width:60px;height:150px;border-radius:30px;}
-
-/* Flask */
 .flask{width:110px;height:130px;border-radius:50% 50% 20% 20%;}
 
-/* GLASS REFLECTION */
 .container-visual::before{
 content:"";position:absolute;top:0;left:10%;width:20%;height:100%;
 background:linear-gradient(to right,rgba(255,255,255,0.4),transparent);
 }
 
-/* LIQUID */
 .liquid{position:absolute;bottom:0;width:100%;height:0%;transition:.6s;}
 
-/* POUR */
 .pour{position:absolute;top:0;left:50%;width:6px;height:40px;background:cyan;animation:pour .5s;}
 @keyframes pour{from{height:0}to{height:40px}}
 
-/* BUBBLE */
 .bubble{position:absolute;bottom:0;width:6px;height:6px;background:white;border-radius:50%;animation:bubble 2s infinite;}
 @keyframes bubble{from{transform:translateY(0)}to{transform:translateY(-100px);opacity:0}}
 
-/* HEATING TEXT */
 .flame{
 display:none;
 text-align:center;
@@ -71,7 +59,6 @@ button{margin-top:6px;padding:6px;border:none;background:#00eaff;color:#000;curs
 .resultBox{margin-top:10px;padding:10px;border-left:4px solid #7c3aed;background:#1f2937;border-radius:6px;}
 .history{font-size:13px;max-height:150px;overflow:auto;margin-top:8px;}
 
-/* ===== NEW FOOTER ===== */
 footer{
 background:#111827;
 border-top:1px solid #00eaff33;
@@ -95,11 +82,13 @@ text-decoration:underline;
 
 <body>
 
-<header style="display:flex;justify-content:space-between;align-items:center;"><div class="logo">⚗️ ChemLab X Pro</div><a href="lab.html" style="color:#00eaff;text-decoration:none;font-size:14px;font-weight:600;">← Home</a></header>
+<header style="display:flex;justify-content:space-between;align-items:center;">
+<div class="logo">⚗️ ChemLab X Pro</div>
+<a href="index.html" style="color:#00eaff;text-decoration:none;font-size:14px;font-weight:600;">← Home</a>
+</header>
 
 <div class="container">
 
-<!-- LEFT PANEL -->
 <div class="card">
 
 <h4>⚗️ Apparatus</h4>
@@ -121,7 +110,6 @@ text-decoration:underline;
 
 </div>
 
-<!-- WORKSPACE -->
 <div class="card">
 <h3>🧪 Workspace</h3>
 
@@ -136,7 +124,6 @@ text-decoration:underline;
 <button onclick="react()">⚗️ React</button>
 </div>
 
-<!-- RESULT -->
 <div class="card">
 <h3>📊 Result</h3>
 
@@ -151,7 +138,6 @@ text-decoration:underline;
 
 </div>
 
-<!-- ===== NEW FOOTER HTML ===== -->
 <footer>
 <p>© 2026 ChemLab X Pro. All Rights Reserved.</p>
 <p>
@@ -162,9 +148,6 @@ text-decoration:underline;
 </footer>
 
 <script>
-
-/* YOUR ORIGINAL JS (UNCHANGED) */
-
 let state={container:null,chemicals:[],temp:0,level:0};
 
 document.getElementById('temp').oninput=function(){
@@ -183,7 +166,6 @@ workspace.ondrop=e=>{
 e.preventDefault();
 let type=e.dataTransfer.getData("type");
 
-/* CONTAINER */
 if(type==="beaker"||type==="testtube"||type==="flask"){
 state.container=type;
 workspace.innerHTML="";
@@ -199,7 +181,6 @@ alert("Add container first");
 return;
 }
 
-/* POUR */
 let pour=document.createElement("div");
 pour.className="pour";
 workspace.appendChild(pour);
@@ -290,7 +271,6 @@ document.getElementById("output").innerText="Reset done";
 document.getElementById("extraResults").innerHTML="";
 document.getElementById("flame").style.display="none";
 }
-
 </script>
 
 </body>
